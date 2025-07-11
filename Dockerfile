@@ -2,7 +2,7 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Copy your code and requirements
+# Copy code and requirements
 COPY requirements.txt .
 COPY inference.py .
 
@@ -10,5 +10,15 @@ COPY inference.py .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Default command to keep container running, override with args when running
-CMD ["python", "inference.py", "--help"]
+# Install wget and unzip, download and unzip Vosk model, then cleanup
+RUN apt-get update && apt-get install -y wget unzip && \
+    wget https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip && \
+    unzip vosk-model-small-en-us-0.15.zip && \
+    rm vosk-model-small-en-us-0.15.zip && \
+    apt-get remove -y wget unzip && apt-get autoremove -y && apt-get clean
+
+# Environment variable for model path inside container
+ENV MODEL_PATH=/app/vosk-model-small-en-us-0.15
+
+# Default CMD shows usage, override at runtime
+CMD ["python", "inference.py", "/app/vosk-model-small-en-us-0.15", "--help"]
