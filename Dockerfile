@@ -17,8 +17,6 @@ RUN apt-get update && apt-get install -y wget unzip && \
     rm vosk-model-small-en-us-0.15.zip && \
     apt-get remove -y wget unzip && apt-get autoremove -y && apt-get clean
 
-# Environment variable for model path inside container
 ENV MODEL_PATH=/app/vosk-model-small-en-us-0.15
 
-# Default CMD shows usage, override at runtime
 CMD ["python", "inference.py", "/app/vosk-model-small-en-us-0.15", "--help"]
