@@ -5,12 +5,12 @@ from vosk import Model, KaldiRecognizer
 
 def main():
     if len(sys.argv) != 4:
-        print("Usage: python inference.py <model_path> <audio_file> <output_text_file>")
+        print("Usage: python inference.py <model_path> <audio_file> <transcript_output_file>")
         sys.exit(1)
 
     model_path = sys.argv[1]
     audio_file = sys.argv[2]
-    output_file = sys.argv[3]
+    transcript_file = sys.argv[3]
 
     wf = wave.open(audio_file, "rb")
     if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
@@ -20,24 +20,25 @@ def main():
     model = Model(model_path)
     rec = KaldiRecognizer(model, wf.getframerate())
 
-    full_text = []
-
-    print(f"Running inference on {audio_file} using model at {model_path}...\n")
+    results = []
     while True:
         data = wf.readframes(4000)
         if len(data) == 0:
             break
         if rec.AcceptWaveform(data):
             result = json.loads(rec.Result())
-            full_text.append(result.get("text", ""))
+            results.append(result.get("text", ""))
     final_result = json.loads(rec.FinalResult())
-    full_text.append(final_result.get("text", ""))
+    results.append(final_result.get("text", ""))
 
-    transcript = " ".join(full_text).strip()
-    print(transcript)
+    # Join all partial results into full transcript
+    full_transcript = " ".join(results).strip()
 
-    with open(output_file, "w") as f:
-        f.write(transcript + "\n")
+    # Write transcript to file
+    with open(transcript_file, "w") as f:
+        f.write(full_transcript)
+
+    print(f"Transcription saved to {transcript_file}")
 
 if __name__ == "__main__":
     main()
