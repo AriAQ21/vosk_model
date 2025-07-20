@@ -19,9 +19,10 @@ def transcribe(model_path, audio_file):
         resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=16000)
         waveform = resampler(waveform)
 
-    # Save as a temporary mono PCM WAV file
+    # Save as PCM 16-bit WAV file for compatibility with wave module
     temp_wav = "/tmp/temp_vosk_input.wav"
-    torchaudio.save(temp_wav, waveform, 16000)
+    waveform = waveform.mul(32767).clamp(-32768, 32767).to(torch.int16)
+    torchaudio.save(temp_wav, waveform, 16000, encoding="PCM_S", bits_per_sample=16)
 
     # Open with wave module (Vosk requirement)
     wf = wave.open(temp_wav, "rb")
