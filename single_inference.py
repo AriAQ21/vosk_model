@@ -3,6 +3,7 @@ import wave
 import json
 import os
 import time
+import torch
 import torchaudio
 from vosk import Model, KaldiRecognizer
 
