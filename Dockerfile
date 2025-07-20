@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy code and requirements
 COPY requirements.txt .
-COPY inference.py .
+COPY single_inference.py .
 COPY batch_inference.py .
 
 # Install dependencies
